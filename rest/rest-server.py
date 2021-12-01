@@ -81,56 +81,57 @@ def upload_blob_bytes(bucket_name, source_bytes, destination_blob_name, ext):
 # upload endpoint to push image to cloud storage and rabbitmq
 @app.route('/upload', methods=['POST'])
 def upload():
- try:
-  # dummy file data
-  image_path = "dog.jpeg"
-  ext = image_path.split('.')[-1]
-  username = "testUser"
-  fileDescription = "image of a cat"
-  
-  # reading image as bytes
-  with io.open(image_path, 'rb') as image_file:
-    img = image_file.read()
+    try:
+        # dummy file data
+        image_path = "cat.jpg"
+        ext = image_path.split('.')[-1]
+        username = "testUser"
+        fileDescription = "image of a cat"
+        
+        # reading image as bytes
+        with io.open(image_path, 'rb') as image_file:
+            img = image_file.read()
 
-  # generating md5 id
-  md5 = hashlib.md5(img)
-  img_md5 = md5.hexdigest()
+        # generating md5 id
+        md5 = hashlib.md5(img)
+        img_md5 = md5.hexdigest()
 
-  # data construction to add to rabbitmq
-  data = dict()
-  data['documentId'] = img_md5
-  data['filename'] = image_path
-  data['username'] = username
-  data['fileDescription'] = fileDescription
+        # data construction to add to rabbitmq
+        data = dict()
+        data['documentId'] = img_md5
+        data['filename'] = image_path
+        data['username'] = username
+        data['fileDescription'] = fileDescription
 
-  print(data)
+        print(data)
 
-  # store file in google cloud bucket.
-  upload_blob_bytes(bucket_name, img, img_md5, ext)
-  
-  print("Image uploaded to cloud storage")
-  
-  # rabbitmq publish
-  connection = pika.BlockingConnection(
-  pika.ConnectionParameters(host=rabbitMQHost))
-  channel = connection.channel()
-  channel.exchange_declare(exchange='toWorker', exchange_type='direct')
-  channel.basic_publish(
-            exchange='toWorker',
-            routing_key='toWorker',
-            body=jsonpickle.encode(data))
-  channel.close()
+        # store file in google cloud bucket.
+        upload_blob_bytes(bucket_name, img, img_md5, ext)
+        
+        print("Image uploaded to cloud storage")
+        
+        # rabbitmq publish
+        connection = pika.BlockingConnection(
+        pika.ConnectionParameters(host=rabbitMQHost))
+        channel = connection.channel()
+        channel.exchange_declare(exchange='toWorker', exchange_type='direct')
+        channel.basic_publish(
+                    exchange='toWorker',
+                    routing_key='toWorker',
+                    body=jsonpickle.encode(data))
+        channel.close()
 
-  # adding status for publish
-  data['status'] = 'success'
-  response = data
- except Exception as e:
-   print(e)
-   response = { 'error' : 'Could not process request'}
- 
- # encode response using jsonpickle
- response_pickled = jsonpickle.encode(response)
- return Response(response=response_pickled, status=201, mimetype="application/json")
+        print("message added to rabbit mq")
+        # adding status for publish
+        data['status'] = 'success'
+        response = data
+    except Exception as e:
+        print(e)
+        response = { 'error' : 'Could not process request'}
+        
+    # encode response using jsonpickle
+    response_pickled = jsonpickle.encode(response)
+    return Response(response=response_pickled, status=201, mimetype="application/json")
 
 # function to download image from Google Cloud Storage bucket using md5 value
 def download_blob_bytes(bucket_name, source_blob_name):
@@ -150,15 +151,15 @@ def download_blob_bytes(bucket_name, source_blob_name):
 # preview endpoint to retrieve the image from cloud storage and preview
 @app.route('/preview/<md5>', methods=['GET'])
 def preview(md5):
-  print(md5)
-  fileFromBucket = download_blob_bytes(bucket_name, md5)
-  print(type(fileFromBucket))
-  image = Image.open(io.BytesIO(fileFromBucket))
-  image.show()
-  response = { 'success' : 'Received md5 value'}
-  # encode response using jsonpickle
-  response_pickled = jsonpickle.encode(response)
-  return Response(response=response_pickled, status=200, mimetype="application/json")
+    print(md5)
+    fileFromBucket = download_blob_bytes(bucket_name, md5)
+    print(type(fileFromBucket))
+    image = Image.open(io.BytesIO(fileFromBucket))
+    image.show()
+    response = { 'success' : 'Received md5 value'}
+    # encode response using jsonpickle
+    response_pickled = jsonpickle.encode(response)
+    return Response(response=response_pickled, status=200, mimetype="application/json")
 
 
 # @app.route('/apiv1/cache/sentiment', methods=['GET'])
@@ -203,4 +204,4 @@ def preview(md5):
 
 # start flask app
 if __name__ == '__main__':
-  app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000)
