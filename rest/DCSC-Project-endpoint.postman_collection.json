@@ -1,0 +1,66 @@
+{
+	"info": {
+		"_postman_id": "37c9e7ba-e066-4ade-93bd-4f23e5034dd8",
+		"name": "DCSC-Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Upload file",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://10.0.0.79:5000/upload",
+					"protocol": "http",
+					"host": [
+						"10",
+						"0",
+						"0",
+						"79"
+					],
+					"port": "5000",
+					"path": [
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve image",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.0.0.79:5000/preview/bf9abc6d361db57a9a1e6e79126c42d5",
+					"protocol": "http",
+					"host": [
+						"10",
+						"0",
+						"0",
+						"79"
+					],
+					"port": "5000",
+					"path": [
+						"preview",
+						"bf9abc6d361db57a9a1e6e79126c42d5"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
