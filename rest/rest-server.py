@@ -154,8 +154,8 @@ def preview(md5):
     print(md5)
     fileFromBucket = download_blob_bytes(bucket_name, md5)
     print(type(fileFromBucket))
-    image = Image.open(io.BytesIO(fileFromBucket))
-    image.show()
+    # image = Image.open(io.BytesIO(fileFromBucket))
+    # image.show()
     response = { 'success' : 'Received md5 value'}
     # encode response using jsonpickle
     response_pickled = jsonpickle.encode(response)
@@ -204,4 +204,4 @@ def preview(md5):
 
 # start flask app
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)
