@@ -12,9 +12,13 @@ RUN pip3 install mysql-connector-python
 RUN pip3 install --upgrade google-cloud-language
 RUN pip3 install --upgrade google-cloud-vision
 
-COPY worker-server.py .
-COPY service-key.json .
-COPY resources/dog.jpg /resources/dog.jpg
+
+WORKDIR /server
+
+COPY worker-server.py /server/
+COPY service-key.json /server/
+COPY resources/dog.jpg /server/resources/dog.jpg
+
 CMD ["ENV" ,"PYTHONUNBUFFERED=0"]
 CMD ["export","GOOGLE_APPLICATION_CREDENTIALS='./service-key.json'"]
 CMD ["python3", "worker-server.py"]
