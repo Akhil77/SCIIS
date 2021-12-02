@@ -1,6 +1,10 @@
-#!/bin/sh
-docker build -t final-worker .
-docker tag final-worker akhilsm/final-worker:v1
-docker push akhilsm/final-worker:v1
+VERSION=v1
+DOCKERUSER=akhilsm
+
+build:
+	docker build -f Dockerfile -t final-worker .
+push:
+	docker tag final-worker $(DOCKERUSER)/final-worker:$(VERSION)
+	docker push $(DOCKERUSER)/final-worker:$(VERSION)
 
 #kubectl create deployment worker --image=gcr.io/dcsc-3/worker
