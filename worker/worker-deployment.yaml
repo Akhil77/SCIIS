@@ -1,20 +1,20 @@
 apiVersion: apps/v1 #  for k8s versions before 1.9.0 use apps/v1beta2  and before 1.8.0 use extensions/v1beta1
 kind: Deployment
 metadata:
-  name: sentiment-worker
+  name: final-worker
 spec:
   selector:
       matchLabels:
-        app: sentiment-worker
+        app: final-worker
   replicas: 1
   template:
     metadata:
       labels:
-        app: sentiment-worker
+        app: final-worker
     spec:
       containers:
-      - name: sentiment-worker
-        image: viprabha/sentiment-worker:latest
+      - name: final-worker
+        image: akhilsm/final-worker:v1
         env:
         - name: RABBITMQ_HOST
           value: rabbitmq.default
@@ -23,5 +23,5 @@ spec:
         resources:
           requests:
             cpu: 100m
-            memory: 2Gi
+            memory: 1000Mi
 ---
