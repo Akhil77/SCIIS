@@ -2,9 +2,10 @@ FROM python:3.6-slim
 
 WORKDIR /server
 
-COPY * /server/
-# COPY rest-server.py /server/
+COPY . /server/
+
+# COPY templates /server/
 
 RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python", "rest-server.py"]
+ENTRYPOINT ["python", "run.py"]

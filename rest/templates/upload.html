@@ -1,0 +1,40 @@
+<!-- templates/profile.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<form action = "/upload-file" method = "POST" enctype = "multipart/form-data">
+<div id="file-upload" class="file is-primary is-centered is-medium has-name">
+  <label class="file-label">
+    <input class="file-input" type="file" name="file">
+    <span class="file-cta">
+      <span class="file-icon">
+        <i class="fas fa-upload"></i>
+      </span>
+      <span id="file-status" class="file-label">
+        Upload image
+      </span>
+    </span>
+    <span class="file-name">
+      File name...
+    </span>
+  </label>
+  <input class="button is-primary is-light is-medium " type = "submit" value = "Submit" />
+</div>
+</form>
+
+<script>
+  const fileInput = document.querySelector('#file-upload input[type=file]');
+  fileInput.onchange = () => {
+    if (fileInput.files.length > 0) {
+      const fileName = document.querySelector('#file-upload .file-name');
+      fileName.textContent = fileInput.files[0].name;
+
+    }
+  } 
+
+
+
+</script>
+{% endblock %}
