@@ -1,21 +1,6 @@
-VERSION=v11
-DOCKERUSER=viprabha
+#!/bin/sh
+docker build -t final-worker .
+docker tag final-worker akhilsm/final-worker:v1
+docker push akhilsm/final-worker:v1
 
-build:
-	docker build -f Dockerfile -t sentiment-worker .
-push:
-	docker tag sentiment-worker $(DOCKERUSER)/sentiment-worker:$(VERSION)
-	docker push $(DOCKERUSER)/sentiment-worker:$(VERSION)
-	docker tag sentiment-worker $(DOCKERUSER)/sentiment-worker:latest
-	docker push $(DOCKERUSER)/sentiment-worker:latest
-
-##
-## The dirkcgrunwald/flair:latest container simply includes the FLAIR library
-##
-
-# DOCKERUSER_FLAIR=dirkcgrunwald
-# build-base:
-# 	docker build -f Dockerfile-flair -t flair .
-# push-base:
-# 	docker tag flair $(DOCKERUSER_FLAIR)/flair:latest
-# 	docker push $(DOCKERUSER_FLAIR)/flair:latest
+#kubectl create deployment worker --image=gcr.io/dcsc-3/worker
