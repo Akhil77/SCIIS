@@ -31,7 +31,7 @@ import hashlib
 import sys
 
 # Global Variables
-db_host = '34.133.47.63'
+db_host = '35.222.158.230'
 db_name = 'ocr_db'
 # db_name = 'Electronics'
 db_user = 'root'
@@ -182,30 +182,27 @@ def save_as_filename(bin_data, filename):
         file.write(bin_data)
 
 
-def get_doc_file(connection, id, name):
+def get_doc_file(connection, id, name, username):
     print("Reading data from a doc table")
     binary_data = b''
     try:
-        username = 'akhil'
         cursor = connection.cursor()
-        sql_fetch_blob_query = """SELECT * from doc where username=%s AND documentId = %s"""
-
+        sql_fetch_blob_query = """SELECT * from doc where username = %s AND documentId = %s"""
         get_blob_tuple = (username,id,)
         cursor.execute(sql_fetch_blob_query, get_blob_tuple)
         record = cursor.fetchall()
-        p = json.loads(record[0][1])
+        print('testing DB')
+        labels = json.loads(record[0][2]) #first record
+        print(labels)
 
         sql_query = """SELECT * from doc
                 WHERE username = %s AND JSON_CONTAINS(labels,'{"description": """+ '"' + name + '"' + """}')"""
-        #sql_query = """SELECT * from doc
-        #WHERE JSON_EXTRACT(content, '$.description') IS NOT NULL"""
-        #"""SELECT * FROM doc
-    #WHERE JSON_UNQUOTE(JSON_EXTRACT(`content`, '$.description')) LIKE 'Cat'"""
-    #WHERE JSON_EXTRACT(colname, '$.cost') IS NOT NULL
         get_blob_tuple = (username,)
         cursor.execute(sql_query, get_blob_tuple)
         record = cursor.fetchall()
-        print(record)
+        print('Select label query')
+        labels = json.loads(record[0][2]) # first record
+        print(labels)
     except mysql.connector.Error as error:
         print("Failed to read BLOB data from MySQL table {}".format(error))
         binary_data = None
@@ -294,7 +291,8 @@ def main():
     # doc_id is md5 hash of a doc file's content
     elif command == 'get_doc':
         doc_id = sys.argv[2]
-        bin_data = get_doc_file(connection, 'ee462de9b0e8d6781c3c18c55dbb84f5', doc_id)
+        username = sys.argv[3]
+        bin_data = get_doc_file(connection, 'ee462de9b0e8d6781c3c18c55dbb84f5', doc_id, username)
         filename = doc_id
         # If output is not a filename but a binary_data,
         # Remove (Comment out) bin_data = save_as_filename(bin_data, filename)

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: final-worker
-        image: akhilsm/final-worker:v1
+        image: akhilsm/final-worker:v2
         env:
         - name: RABBITMQ_HOST
           value: rabbitmq.default

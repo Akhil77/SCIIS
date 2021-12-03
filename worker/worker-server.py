@@ -18,8 +18,8 @@ from google.cloud import vision
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/service-key.json"
 
 hostname = platform.node()
-db_host = '34.133.47.63'
-db_name = 'mysql1'
+db_host = '35.222.158.230'
+db_name = 'ocr_db'
 db_user = 'root'
 db_password = 'csci-password'
 
@@ -95,7 +95,7 @@ def download_blob_bytes(bucket_name, source_blob_name):
 
     return bytes_data
 
-def vision(fileBytes):
+def vision_api(fileBytes):
     # check if file or document and then perform OCR on it.
     image = vision.Image(content=fileBytes)
     client = vision.ImageAnnotatorClient()
@@ -124,10 +124,10 @@ def vision(fileBytes):
     resp1['spoofed'] = likelihood_name[safe.spoof]
     resp1['violence'] = likelihood_name[safe.violence]
     resp1['racy'] = likelihood_name[safe.racy]
-    resp2 = resp.append(resp1)
+    resp2 = resp.copy()
+    resp2.append(resp1)
     resp = json.dumps(resp)
     resp1 = json.dumps(resp1)
-    resp2 = json.dumps(resp2)
 
     if response.error.message:
         raise Exception(
@@ -158,20 +158,25 @@ def workerCallback(ch, method, properties, body):
     print(data) # data will contain document/image id, filename and username
     username = data['username']
     documentId = data['documentId']
+    bucket_name = 'final-proj-csci-5253'
 
     # get the file from bucket
-    #fileFromBucket = download_blob_bytes(bucket_name, data['documentId']) Temporary
+    fileFromBucket = download_blob_bytes(bucket_name, data['documentId'])
 
-    file_name = os.path.abspath('resources/dog.jpg')
+    print("Fetched file from bucket")
+    #file_name = os.path.abspath('resources/dog.jpg')
 
     # Loads the image into memory
-    with io.open(file_name, 'rb') as image_file:
-        fileFromBucket = image_file.read()
+    #with io.open(file_name, 'rb') as image_file:
+    #    fileFromBucket = image_file.read()
 
     # perform OCR on the file and store results in SQL
-    LabelObj, SafeSearchObj, redisStoreObj = vision(fileFromBucket)
+    LabelObj, SafeSearchObj, redisStoreObj = vision_api(fileFromBucket)
+    print("Vision extracted")
 
     storeContentInSql(data['username'], data['documentId'], LabelObj, SafeSearchObj)
+
+    print("Stored in sql")
 
     # Classify the text obtained from document and store results
     key = username + ":" + documentId
@@ -180,6 +185,7 @@ def workerCallback(ch, method, properties, body):
         redisDocuments.set(key,json.dumps(redisStoreObj))
 
     for r in redisStoreObj[:-1]:
+        print(r)
         key = username+":"+r['description']
         if not redisKeys.exists(key):
             print('Key doesnt exist')
@@ -198,7 +204,7 @@ def workerCallback(ch, method, properties, body):
                 redisKeys.set(key,json.dumps(val))
             val = sorted(val, key=lambda k: k['score'], reverse=True)# For sorting on rest server
 
-rabbitMQChannel.basic_consume('toWorker', workerCallback)
+rabbitMQChannel.basic_consume('toWorker', workerCallback, auto_ack=True)
 try:
     rabbitMQChannel.start_consuming()
 except KeyboardInterrupt:
