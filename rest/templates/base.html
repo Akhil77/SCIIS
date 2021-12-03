@@ -29,8 +29,8 @@
                             </a>
                             {% endif %}
                             {% if current_user.is_authenticated %}
-                            <a href="{{ url_for('main.index') }}" class="navbar-item">
-                                Preview
+                            <a href="{{ url_for('main.search') }}" class="navbar-item">
+                                Search
                             </a>
                             {% endif %}
                         </div>
@@ -55,7 +55,7 @@
         </div>
 
         <div class="hero-body">
-            <div class="container has-text-centered">
+            <div class="container has-text-centered is-align-items-stretch">
                {% block content %}
                {% endblock %}
             </div>

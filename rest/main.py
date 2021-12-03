@@ -70,6 +70,11 @@ def index():
 def upload_page():
     return render_template('upload.html', name=current_user.name)
 
+@main.route('/search-page')
+@login_required
+def search():
+    return render_template('search.html', name=current_user.name)
+
 
 # function to upload image as bytes into Google Cloud Storage bucket
 def upload_blob_bytes(bucket_name, source_bytes, destination_blob_name, ext):
@@ -89,6 +94,7 @@ def upload_blob_bytes(bucket_name, source_bytes, destination_blob_name, ext):
         'source_bytes',
         destination_blob_name))
 
+# endpoint to upload file to GCP
 @main.route('/upload-file', methods = ['POST'])
 @login_required
 def upload_file():
@@ -137,6 +143,13 @@ def upload_file():
 
     return render_template('upload.html', name=current_user.name)
 
+# # endpoint to upload file to GCP
+# @main.route('/search-image', methods = ['POST'])
+# @login_required
+# def search_image():
+
+
+
 # function to download image from Google Cloud Storage bucket using md5 value
 def download_blob_bytes(bucket_name, source_blob_name):
     
@@ -152,6 +165,7 @@ def download_blob_bytes(bucket_name, source_blob_name):
 
     return bytes_data
 
+# endpoint to retrieve image from GCP
 @main.route('/preview/<md5>', methods = ['GET'])
 def preview(md5):
     print(md5)

@@ -1,0 +1,53 @@
+<!-- templates/search.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+    <form role="form" method="POST" action="/">
+      <div id="search-bar" class="field has-addons">
+          <div class="control is-expanded">
+            <input class="input" type="text" placeholder="Search for an image">
+          </div>
+          <div class="control">
+            <button class="button is-primary" type = "submit" value = "Submit">
+              Search
+            </button>
+          </div>
+          <br>
+            {% for error in errors %}
+              <h4>{{ error }}</h4>
+            {% endfor %}
+          <br>
+      </div>
+    </form>
+
+    <div class="col-sm-5 col-sm-offset-1">
+      {% if results %}
+        <h2>Frequencies</h2>
+        <br>
+        <div id="results">
+          <table class="table table-striped" style="max-width: 300px;">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>File Name</th>
+                <th>Safe Search</th>
+              </tr>
+            </thead>
+            {% for result in results%}
+              <tr>
+                <td>{{ result[0] }}</td>
+                <td>{{ result[1] }}</td>
+                <td>{{ result[2] }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<br><br>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+{% endblock %}
