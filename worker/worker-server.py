@@ -18,7 +18,7 @@ from google.cloud import vision
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/service-key.json"
 
 hostname = platform.node()
-db_host = '35.222.158.230'
+db_host = '10.41.224.3'
 db_name = 'ocr_db'
 db_user = 'root'
 db_password = 'csci-password'
@@ -31,10 +31,6 @@ try:
 except mysql.connector.Error as error:
     print("Error Connecting to MySQL DB {}".format(error))
 
-
-##
-## Configure test vs. production
-##
 redisHost = os.getenv("REDIS_HOST") or "localhost"
 rabbitMQHost = os.getenv("RABBITMQ_HOST") or "localhost"
 
@@ -176,7 +172,7 @@ def workerCallback(ch, method, properties, body):
 
     storeContentInSql(data['username'], data['documentId'], LabelObj, SafeSearchObj)
 
-    print("Stored in sql")
+    print("Stored in sql", flush= True)
 
     # Classify the text obtained from document and store results
     key = username + ":" + documentId
@@ -185,7 +181,6 @@ def workerCallback(ch, method, properties, body):
         redisDocuments.set(key,json.dumps(redisStoreObj))
 
     for r in redisStoreObj[:-1]:
-        print(r)
         key = username+":"+r['description']
         if not redisKeys.exists(key):
             print('Key doesnt exist')
@@ -203,6 +198,7 @@ def workerCallback(ch, method, properties, body):
                 val.append({'documentId': documentId, 'score':r['score']})
                 redisKeys.set(key,json.dumps(val))
             val = sorted(val, key=lambda k: k['score'], reverse=True)# For sorting on rest server
+    
 
 rabbitMQChannel.basic_consume('toWorker', workerCallback, auto_ack=True)
 try:
