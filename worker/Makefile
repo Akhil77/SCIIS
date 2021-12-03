@@ -1,4 +1,4 @@
-VERSION=v2
+VERSION=v4
 DOCKERUSER=akhilsm
 
 build:
