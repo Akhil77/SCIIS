@@ -19,7 +19,7 @@ from mysql.connector import Error
 import sys
 
 # Global Variables
-db_host = '34.133.47.63'
+db_host = '35.222.158.230'
 db_name = 'ocr_db'
 # db_name = 'Electronics'
 db_user = 'root'
@@ -248,6 +248,8 @@ def main():
 
     # Parse command line
     # Create a  talbe for auth (username, password)
+    if command == 'createDB':
+        create_ocr_db_database()
     if command == 'create':
         # Create a database: ocr_db fixed
         # create_ocr_db_database()
