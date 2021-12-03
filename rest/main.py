@@ -141,7 +141,7 @@ def upload_file():
     except Exception as e:
         print(e)
 
-    return render_template('upload.html', name=current_user.name)
+    return render_template('upload.html', text="Image uploaded to Google Cloud, Upload more...")
 
 # # endpoint to upload file to GCP
 # @main.route('/search-image', methods = ['POST'])

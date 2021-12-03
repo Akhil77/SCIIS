@@ -3,7 +3,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+{% if text %}
+<p class="subtitle is-6">{{text}}</p>
+{% endif %}
 <form action = "/upload-file" method = "POST" enctype = "multipart/form-data">
 <div id="file-upload" class="file is-primary is-centered is-medium has-name">
   <label class="file-label">
