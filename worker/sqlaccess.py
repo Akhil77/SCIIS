@@ -31,7 +31,7 @@ import hashlib
 import sys
 
 # Global Variables
-db_host = '35.222.158.230'
+db_host = '34.71.205.103'
 db_name = 'ocr_db'
 # db_name = 'Electronics'
 db_user = 'root'
@@ -104,9 +104,10 @@ def insert_doc_file(connection, bin_data):
     try:
         cursor = connection.cursor()
         sql_insert_blob_query = """ INSERT INTO doc
-                          (username, documentId, labels, safeSearch) VALUES (%s, %s, %s, %s)"""
+                          (username, documentId, labels, safeSearch, filename) VALUES (%s, %s, %s, %s, %s)"""
         username = 'akhil'
         id = hashlib.md5(bin_data).hexdigest()
+        filename = id + ".jpg"
         print(id)
         content = [{
                 'mid': "/m/01yrx",
@@ -136,7 +137,7 @@ def insert_doc_file(connection, bin_data):
         content = json.dumps(content)
 
         # Convert data into tuple format
-        insert_blob_tuple = (username, id, content, content1)
+        insert_blob_tuple = (username, id, content, content1, filename)
         result = cursor.execute(sql_insert_blob_query, insert_blob_tuple)
         connection.commit()
         print("Doc file data (id:%s) inserted successfully into doc table: %r" % 
@@ -201,7 +202,8 @@ def get_doc_file(connection, id, name, username):
         cursor.execute(sql_query, get_blob_tuple)
         record = cursor.fetchall()
         print('Select label query')
-        labels = json.loads(record[0][2]) # first record
+        labels = json.loads(record[0][3]) # first record
+        print(record[0][4])
         print(labels)
     except mysql.connector.Error as error:
         print("Failed to read BLOB data from MySQL table {}".format(error))
@@ -292,7 +294,7 @@ def main():
     elif command == 'get_doc':
         doc_id = sys.argv[2]
         username = sys.argv[3]
-        bin_data = get_doc_file(connection, 'ee462de9b0e8d6781c3c18c55dbb84f5', doc_id, username)
+        bin_data = get_doc_file(connection, '3a7adb7cd7578e634970a008e9cbd77e', doc_id, username)
         filename = doc_id
         # If output is not a filename but a binary_data,
         # Remove (Comment out) bin_data = save_as_filename(bin_data, filename)
