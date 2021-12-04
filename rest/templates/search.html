@@ -3,10 +3,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <form style="position: relative; bottom: 18em;" role="form" method="POST" action="/">
+    <form style="position: fixed; bottom: 45em; width: 80em "  method="POST" action="/search-image">
       <div class="field has-addons">
           <div class="control is-expanded">
-            <input class="input" type="text" placeholder="Search for an image">
+            <input class="input" type="text" name="keyword" placeholder="Search for an image">
           </div>
           <div class="control">
             <button class="button is-primary" type = "submit" value = "Submit">
@@ -20,34 +20,30 @@
           <br>
       </div>
     </form>
-
-    <div class="col-sm-5 col-sm-offset-1">
+   
+    <div >
       {% if results %}
-        <h2>Frequencies</h2>
+      <h2 class="title is-4">Result</h2>
         <br>
-        <div id="results">
-          <table class="table table-striped" style="max-width: 300px;">
+       
+        <div class="columns is-centered is-vcentered is-mobile">
+          <table class="table  is-striped  is-hoverable is-fullwidth">
             <thead>
               <tr>
-                <th>Image</th>
-                <th>File Name</th>
-                <th>Safe Search</th>
+                <th class="has-text-centered">File Name</th>
+                <th class="has-text-centered">Safe Search</th>
               </tr>
             </thead>
-            {% for result in results%}
+            {% for result in results.result%}
               <tr>
-                <td>{{ result[0] }}</td>
-                <td>{{ result[1] }}</td>
-                <td>{{ result[2] }}</td>
+                <td class="has-text-centered"><a href= {{result.md5}} style="color:blue;" target="_blank" rel="noopener noreferrer">{{ result.file_name }}</a></td>
+                <td class="has-text-centered">{{ result.Safe }}</td>
               </tr>
             {% endfor %}
           </table>
         </div>
+     
       {% endif %}
     </div>
-  </div>
-</div>
-<br><br>
-<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
 {% endblock %}
