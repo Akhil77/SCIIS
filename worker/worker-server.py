@@ -18,7 +18,7 @@ from google.cloud import vision
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/service-key.json"
 
 hostname = platform.node()
-db_host = '10.41.224.3'
+db_host = '10.41.224.5'
 db_name = 'ocr_db'
 db_user = 'root'
 db_password = 'csci-password'
@@ -133,13 +133,13 @@ def vision_api(fileBytes):
 
     return resp,resp1,resp2
 
-def storeContentInSql(username, documentId, labelObj, safeSearchObj):
+def storeContentInSql(username, documentId, labelObj, safeSearchObj, filename):
     try:
         cursor = connectionDB.cursor()
         sql_insert_blob_query = """ INSERT INTO doc
-                          (username, documentId, labels, safeSearch) VALUES (%s, %s, %s, %s)"""
+                          (username, documentId, labels, safeSearch, filename) VALUES (%s, %s, %s, %s, %s)"""
 
-        insert_text_tuple = (username, documentId, labelObj, safeSearchObj)
+        insert_text_tuple = (username, documentId, labelObj, safeSearchObj, filename)
         result = cursor.execute(sql_insert_blob_query, insert_text_tuple)
         connectionDB.commit()
         print(username, documentId, labelObj)
@@ -154,12 +154,13 @@ def workerCallback(ch, method, properties, body):
     print(data) # data will contain document/image id, filename and username
     username = data['username']
     documentId = data['documentId']
+    filename = data['filename']
     bucket_name = 'final-proj-csci-5253'
 
     # get the file from bucket
     fileFromBucket = download_blob_bytes(bucket_name, data['documentId'])
 
-    print("Fetched file from bucket")
+    print("Fetched file from bucket", flush = True)
     #file_name = os.path.abspath('resources/dog.jpg')
 
     # Loads the image into memory
@@ -168,9 +169,10 @@ def workerCallback(ch, method, properties, body):
 
     # perform OCR on the file and store results in SQL
     LabelObj, SafeSearchObj, redisStoreObj = vision_api(fileFromBucket)
-    print("Vision extracted")
+    redisStoreObj.append({'filename':filename})
+    print("Vision extracted", flush = True)
 
-    storeContentInSql(data['username'], data['documentId'], LabelObj, SafeSearchObj)
+    storeContentInSql(data['username'], data['documentId'], LabelObj, SafeSearchObj, filename)
 
     print("Stored in sql", flush= True)
 
@@ -180,7 +182,7 @@ def workerCallback(ch, method, properties, body):
         print('Doc doesnt exist')
         redisDocuments.set(key,json.dumps(redisStoreObj))
 
-    for r in redisStoreObj[:-1]:
+    for r in redisStoreObj[:-2]:
         key = username+":"+r['description']
         if not redisKeys.exists(key):
             print('Key doesnt exist')

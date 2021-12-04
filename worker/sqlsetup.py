@@ -19,7 +19,7 @@ from mysql.connector import Error
 import sys
 
 # Global Variables
-db_host = '35.222.158.230'
+db_host = '34.71.205.103'
 db_name = 'ocr_db'
 # db_name = 'Electronics'
 db_user = 'root'
@@ -47,7 +47,7 @@ def create_auth_table(connection):
 def create_doc_table(connection):
     try:
         mySql_Create_Table_Query = """CREATE TABLE doc ( username varchar(32) NOT NULL, documentId varchar(32) NOT NULL,
-                                labels JSON NOT NULL, safeSearch JSON NOT NULL, PRIMARY KEY (username, documentId)) """
+                                labels JSON NOT NULL, safeSearch JSON NOT NULL, filename varchar(32), PRIMARY KEY (username, documentId)) """
         cursor = connection.cursor()
         result = cursor.execute(mySql_Create_Table_Query)
 
