@@ -143,10 +143,14 @@ def upload_file():
 
     return render_template('upload.html', text="Image uploaded to Google Cloud, Upload more...")
 
-# # endpoint to upload file to GCP
-# @main.route('/search-image', methods = ['POST'])
-# @login_required
-# def search_image():
+# endpoint to upload file to GCP
+@main.route('/search-image', methods = ['POST'])
+@login_required
+def search_image():
+    keyword = request.form.get('keyword')
+    print(keyword)
+    results = {'result':[{"md5":"https://storage.googleapis.com/dcsc-final-project-bucket/577620841707a6edb162db9eecf04993","file_name":"cat.jpg", "Safe":"Peace"}, {"md5":"https://storage.googleapis.com/dcsc-final-project-bucket/bf9abc6d361db57a9a1e6e79126c42d5","file_name":"dog.jpeg", "Safe":"Cute"}]}
+    return render_template('search.html', status=201, results=results, mimetype="application/json")
 
 
 
