@@ -28,7 +28,25 @@ print("Connecting to rabbitmq({}) and redis({})".format(rabbitMQHost,redisHost))
 bucket_name = 'dcsc-final-project-bucket'
 
 # redis initialization
-db = redis.Redis(host=redisHost, db=1)
+redisDocuments = redis.Redis(redisHost, db = 2)
+redisKeys = redis.Redis(redisHost, db = 3)  
+
+
+# mysql connection details
+hostname = platform.node()
+db_host = '34.71.205.103'
+db_name = 'ocr_db'
+db_user = 'root'
+db_password = 'csci-password'
+
+# establishing mysql connection
+# try:
+#     connectionDB = mysql.connector.connect(host=db_host,
+#                                         database=db_name,
+#                                         user=db_user,
+#                                         password=db_password)
+# except mysql.connector.Error as error:
+#     print("Error Connecting to MySQL DB {}".format(error))
 
 # Google application credentials
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/dcsc-project.json"
@@ -143,14 +161,51 @@ def upload_file():
 
     return render_template('upload.html', text="Image uploaded to Google Cloud, Upload more...")
 
-# endpoint to upload file to GCP
+
+# function to retrieve content from redis
+def check_redis(username, key):
+    redisKeys_query = username +":"+ key
+    output = []
+    response_redisKeys = ""
+    response_redisDocuments = ""
+    if redisKeys.get(redisKeys_query):
+        response_redisKeys = json.loads(redisKeys.get(redisKeys_query).decode('utf-8'))
+    if response_redisKeys:
+        for element in response_redisKeys:
+            redisDocuments_query = username +":"+ element["documentId"]
+            temp = dict()
+            temp["md5"] = "https://storage.googleapis.com/" + bucket_name +"/" + element["documentId"]
+            if redisDocuments.get(redisDocuments_query):
+                response_redisDocuments = json.loads(redisDocuments.get(redisDocuments_query).decode('utf-8'))
+                temp["file_name"] = response_redisDocuments[-1]["filename"]
+                safe_search = response_redisDocuments[-2]
+                safe_search_tag = ""
+                for key, value in safe_search.items():
+                    if value in ('POSSIBLE',
+                       'LIKELY', 'VERY_LIKELY'):
+                        safe_search_tag += key +', '
+                temp["safe_search"] = safe_search_tag[0:len(safe_search_tag)-2]
+            output.append(temp)
+    return output
+            
+    
+# endpoint to search for contexual keyword matched images
 @main.route('/search-image', methods = ['POST'])
 @login_required
 def search_image():
     keyword = request.form.get('keyword')
-    print(keyword)
-    results = {'result':[{"md5":"https://storage.googleapis.com/dcsc-final-project-bucket/577620841707a6edb162db9eecf04993","file_name":"cat.jpg", "Safe":"Peace"}, {"md5":"https://storage.googleapis.com/dcsc-final-project-bucket/bf9abc6d361db57a9a1e6e79126c42d5","file_name":"dog.jpeg", "Safe":"Cute"}]}
-    return render_template('search.html', status=201, results=results, mimetype="application/json")
+    default_output = ""
+    output = ""
+    username = current_user.name
+    if keyword:
+        redis_output = check_redis(username, keyword)
+        if redis_output:
+            output = {'result':redis_output}
+        else:
+            default_output = "Could not find any images, try again ..."
+    else:
+        default_output = "Could not find any images, try again ..."
+    return render_template('search.html', status=201, results=output, default_text = default_output)
 
 
 

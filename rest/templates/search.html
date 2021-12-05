@@ -21,6 +21,9 @@
       </div>
     </form>
    
+    {% if default_text %}
+      <p class="subtitle is-5">{{default_text}}</p>
+    {% endif %}
     <div >
       {% if results %}
       <h2 class="title is-4">Result</h2>
@@ -37,7 +40,7 @@
             {% for result in results.result%}
               <tr>
                 <td class="has-text-centered"><a href= {{result.md5}} style="color:blue;" target="_blank" rel="noopener noreferrer">{{ result.file_name }}</a></td>
-                <td class="has-text-centered">{{ result.Safe }}</td>
+                <td class="has-text-centered">{{ result.safe_search }}</td>
               </tr>
             {% endfor %}
           </table>
