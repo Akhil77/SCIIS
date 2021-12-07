@@ -31,7 +31,7 @@ import hashlib
 import sys
 
 # Global Variables
-db_host = '34.71.205.103'
+db_host = '34.134.156.106'
 db_name = 'ocr_db'
 # db_name = 'Electronics'
 db_user = 'root'
@@ -107,7 +107,7 @@ def insert_doc_file(connection, bin_data):
                           (username, documentId, labels, safeSearch, filename) VALUES (%s, %s, %s, %s, %s)"""
         username = 'akhil'
         id = hashlib.md5(bin_data).hexdigest()
-        filename = id + ".jpg"
+        filename = "dog" + ".jpg"
         print(id)
         content = [{
                 'mid': "/m/01yrx",
@@ -294,7 +294,7 @@ def main():
     elif command == 'get_doc':
         doc_id = sys.argv[2]
         username = sys.argv[3]
-        bin_data = get_doc_file(connection, '3a7adb7cd7578e634970a008e9cbd77e', doc_id, username)
+        bin_data = get_doc_file(connection, 'e6f6d6397cb702596fe07a6870cd9924', doc_id, username)
         filename = doc_id
         # If output is not a filename but a binary_data,
         # Remove (Comment out) bin_data = save_as_filename(bin_data, filename)

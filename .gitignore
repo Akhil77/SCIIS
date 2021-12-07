@@ -1,7 +1,7 @@
 *~
 dcsc-project.json
 .DS_Store
-
+service-key.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
