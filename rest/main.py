@@ -34,19 +34,19 @@ redisKeys = redis.Redis(redisHost, db = 3)
 
 # mysql connection details
 hostname = platform.node()
-db_host = '34.71.205.103'
+db_host = '34.134.156.106'
 db_name = 'ocr_db'
 db_user = 'root'
 db_password = 'csci-password'
 
 # establishing mysql connection
-# try:
-#     connectionDB = mysql.connector.connect(host=db_host,
-#                                         database=db_name,
-#                                         user=db_user,
-#                                         password=db_password)
-# except mysql.connector.Error as error:
-#     print("Error Connecting to MySQL DB {}".format(error))
+try:
+    connection = mysql.connector.connect(host=db_host,
+                                        database=db_name,
+                                        user=db_user,
+                                        password=db_password)
+except mysql.connector.Error as error:
+    print("Error Connecting to MySQL DB {}".format(error))
 
 # Google application credentials
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/dcsc-project.json"
@@ -168,8 +168,10 @@ def check_redis(username, key):
     output = []
     response_redisKeys = ""
     response_redisDocuments = ""
+    # getting the document ID for gvien keyword
     if redisKeys.get(redisKeys_query):
-        response_redisKeys = json.loads(redisKeys.get(redisKeys_query).decode('utf-8'))
+        response_redisKeys = json.loads(redisKeys.get(redisKeys_query).decode('utf-8'))\
+    # getting the filename and safe search tags
     if response_redisKeys:
         for element in response_redisKeys:
             redisDocuments_query = username +":"+ element["documentId"]
@@ -188,7 +190,38 @@ def check_redis(username, key):
             output.append(temp)
     return output
             
+# function to retrieve content from MySQL
+def check_mysql(keyword, username):
+    print("Reading data from a doc table")
+    binary_data = b''
+    output = []
+    try:
+        cursor = connection.cursor()
+        sql_query = """SELECT * from doc
+                WHERE username = %s AND JSON_CONTAINS(labels,'{"description": """+ '"' + keyword + '"' + """}')"""
+        get_blob_tuple = (username,)
+        cursor.execute(sql_query, get_blob_tuple)
+        record = cursor.fetchall()
+        if record: 
+            for element in record:
+                temp = dict()
+                temp["md5"] = "https://storage.googleapis.com/" + bucket_name +"/" + element[1]
+                temp["file_name"] = element[-1]
+                safe_search = json.loads(element[-2])
+                safe_search_tag = ""
+                for key, value in safe_search.items():
+                    if value in ('POSSIBLE',
+                       'LIKELY', 'VERY_LIKELY'):
+                        safe_search_tag += key +', '
+                temp["safe_search"] = safe_search_tag[0:len(safe_search_tag)-2]
+                output.append(temp)
     
+        return output
+    except mysql.connector.Error as error:
+        print("Failed to read BLOB data from MySQL table {}".format(error))
+        binary_data = None
+
+
 # endpoint to search for contexual keyword matched images
 @main.route('/search-image', methods = ['POST'])
 @login_required
@@ -202,7 +235,11 @@ def search_image():
         if redis_output:
             output = {'result':redis_output}
         else:
-            default_output = "Could not find any images, try again ..."
+            sql_output = check_mysql(keyword, username)
+            if sql_output:
+                output = {'result':sql_output}
+            else:
+                default_output = "Could not find any images, try again ..."
     else:
         default_output = "Could not find any images, try again ..."
     return render_template('search.html', status=201, results=output, default_text = default_output)

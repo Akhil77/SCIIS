@@ -18,7 +18,7 @@ from google.cloud import vision
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/service-key.json"
 
 hostname = platform.node()
-db_host = '10.41.224.5'
+db_host = '34.134.156.106'
 db_name = 'ocr_db'
 db_user = 'root'
 db_password = 'csci-password'
@@ -155,7 +155,7 @@ def workerCallback(ch, method, properties, body):
     username = data['username']
     documentId = data['documentId']
     filename = data['filename']
-    bucket_name = 'final-proj-csci-5253'
+    bucket_name = 'dcsc-final-project-bucket'
 
     # get the file from bucket
     fileFromBucket = download_blob_bytes(bucket_name, data['documentId'])

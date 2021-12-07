@@ -19,7 +19,7 @@ from mysql.connector import Error
 import sys
 
 # Global Variables
-db_host = '34.71.205.103'
+db_host = '34.134.156.106'
 db_name = 'ocr_db'
 # db_name = 'Electronics'
 db_user = 'root'
