@@ -3,7 +3,7 @@ apiVersion: v1
 metadata:
   name: sciis-rest
 spec:
-  #type: NodePort
+  type: NodePort
   selector:
     app: sciis-rest
   ports:
