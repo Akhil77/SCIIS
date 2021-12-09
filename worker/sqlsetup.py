@@ -59,24 +59,6 @@ def create_doc_table(connection):
             cursor.close()
             print("MySQL cursor is closed")
 
-
-# Create a talbe for doc binary
-def create_image_table(connection):
-    try:
-        mySql_Create_Table_Query = """CREATE TABLE image ( id varchar(32) NOT NULL , 
-                                content LONGBLOB NOT NULL , PRIMARY KEY (id)) """
-        cursor = connection.cursor()
-        result = cursor.execute(mySql_Create_Table_Query)
-
-        print("image Table created successfully: %r" % result)
-    except mysql.connector.Error as error:
-        print("Failed to create_image_table in MySQL: {}".format(error))
-    finally:
-        if (connection.is_connected()):
-            cursor.close()
-            print("MySQL cursor is closed")
-
-
 # Delete all rows in auth talbe with the given table name
 def delete_auth_all_rows(connection):
     try:
@@ -113,23 +95,6 @@ def delete_doc_all_rows(connection):
             print("MySQL cursor is closed")
 
 
-# Delete all rows in image talbe with the given table name
-def delete_image_all_rows(connection):
-    try:
-        Delete_all_rows = """truncate table image """
-
-        cursor = connection.cursor()
-        cursor.execute(Delete_all_rows)
-        connection.commit()
-
-        print("All Records Deleted successfully in image table")
-    except mysql.connector.Error as error:
-        print("Failed to delete all rows in MySQL: {}".format(error))
-    finally:
-        if (connection.is_connected()):
-            cursor.close()
-            print("MySQL cursor is closed")
-
 
 # Delete a table with the given table name
 def delete_table_auth(connection):
@@ -164,24 +129,6 @@ def delete_table_doc(connection):
             cursor.close()
             print("MySQL cursor is closed")
 
-
-# Delete a table with the given table name
-def delete_table_image(connection):
-    try:
-        mySql_Delete_Table_Query = """DROP TABLE IF EXISTS image """
-
-        cursor = connection.cursor()
-        cursor.execute(mySql_Delete_Table_Query)
-        connection.commit()
-        print("Table image deleted successfully")
-    except mysql.connector.Error as error:
-        print("Failed to delete table in MySQL: {}".format(error))
-    finally:
-        if (connection.is_connected()):
-            cursor.close()
-            print("MySQL cursor is closed")
-
-
 # Delete a database with the given database
 def delete_ocr_db_database(connection, db_name):
     try:
@@ -197,7 +144,6 @@ def delete_ocr_db_database(connection, db_name):
         if (connection.is_connected()):
             cursor.close()
             print("MySQL cursor is closed")
-
 
 # Create a database with the given name: ocr_db
 # https://www.w3schools.com/python/python_mysql_create_db.asp
