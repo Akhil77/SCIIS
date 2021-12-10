@@ -4,11 +4,8 @@
 # Store a file (any type of a binary file) to MySQL DB
 # Retrieve a file (any type of a binary file) from MySQL DB
 
-# "Usage: mysql_access.py <Function: put_user_pw | get_pw 
-#        | put_doc | get_doc | put_image | get_image > <id | filename> <pw>\n")
 # For auth: put_user_pw <username> <pw> or get_pw <username>
 # For Doc: put_doc <filename> or get_doc <id_md5>
-# For Image: put_image <filename> or put_image <id_md5>
 
 # MySQL Access Codes largely from the site below
 # https://pynative.com/python-mysql-blob-insert-retrieve-file-image-as-a-blob-in-mysql/
@@ -150,33 +147,6 @@ def insert_doc_file(connection, bin_data):
             connection.close()
             print("MySQL connection is closed")
 
-
-# Insert input BLOB (file binary data) into MySQL image DB Table
-def insert_image_file(connection, bin_data):
-    print("Inserting data into image table")
-    try:
-        cursor = connection.cursor()
-        sql_insert_blob_query = """ INSERT INTO image
-                          (id, content) VALUES (%s, %s)"""
-
-        id = hashlib.md5(bin_data).hexdigest()
-        content = base64.b64encode(bin_data)
-
-        # Convert data into tuple format
-        insert_blob_tuple = (id, content)
-        result = cursor.execute(sql_insert_blob_query, insert_blob_tuple)
-        connection.commit()
-        print("image file data (id:%s) inserted successfully into image table: %r" % 
-                (id, result))
-    except mysql.connector.Error as error:
-        print("Failed inserting data into MySQL table {}".format(error))
-    finally:
-        if (connection.is_connected()):
-            cursor.close()
-            connection.close()
-            print("MySQL connection is closed")
-
-
 def save_as_filename(bin_data, filename):
     # Store binary data on file system
     with open(filename, 'wb') as file:
@@ -216,32 +186,6 @@ def get_doc_file(connection, id, name, username):
             print("MySQL connection is closed")
         return binary_data
 
-
-def get_image_file(connection, id):
-    print("Reading data from a image table")
-    binary_data = b''
-    try:
-        cursor = connection.cursor()
-        sql_fetch_blob_query = """SELECT * from image where id = %s"""
-
-        get_blob_tuple = (id,)
-        cursor.execute(sql_fetch_blob_query, get_blob_tuple)
-        record = cursor.fetchall()
-        for row in record:
-            print("%s_id = %s", row[0])
-            binary_data = base64.b64decode(row[1].encode('ascii'))
-    except mysql.connector.Error as error:
-        print("Failed to read BLOB data from MySQL table {}".format(error))
-        binary_data = None
-
-    finally:
-        if (connection.is_connected()):
-            cursor.close()
-            connection.close()
-            print("MySQL connection is closed")
-        return binary_data
-
-
 # START main
 def main():
     global db_host
@@ -255,7 +199,7 @@ def main():
     # Get Arguments
     if len(sys.argv) < 3:
         print ("Usage: mysql_access.py <Function: put_user_pw | get_pw \
-            | put_doc | get_doc | put_image | get_image > <id | filename> <pw>\n")
+            | put_doc | get_doc\n")
         sys.exit(1)
     print (sys.argv)
     command = sys.argv[1]
@@ -299,27 +243,9 @@ def main():
         # If output is not a filename but a binary_data,
         # Remove (Comment out) bin_data = save_as_filename(bin_data, filename)
         save_as_filename(bin_data, filename)
-
-    # Insert an image file's content to image table
-    elif command == 'put_image':
-        image_name = sys.argv[2]
-        # If input is not a filename but a binary_data,
-        # Remove (Comment out) bin_data = read_with_filename(filename)
-        bin_data = read_with_filename(image_name)
-        insert_image_file(connection, bin_data)
-
-    # Retrieve an image file's content from image table with image_id
-    # image_id is md5 hash of an image file's content
-    elif command == 'get_image':
-        image_id = sys.argv[2]
-        bin_data = get_image_file(connection, image_id)
-        filename = 'image_'+image_id
-        # If output is not a filename but a binary_data,
-        # Remove (Comment out) bin_data = save_as_filename(bin_data, filename)
-        save_as_filename(bin_data, filename)
     else:
         print ("Usage: mysql_access.py <command: put_user_pw | get_pw \
-            | put_doc | get_doc | put_image | get_image | help> <id | filename> <pw>\n")
+            | put_doc | get_doc\n")
         sys.exit(1)
 
     # Create Table: Used for testing purpuses

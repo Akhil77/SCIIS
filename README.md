@@ -1,1 +1,1 @@
-## Scaleable contexual image indexing and search
+## Scalable contextual image indexing and search
