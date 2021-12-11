@@ -18,7 +18,7 @@ from google.cloud import vision
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/service-key.json"
 
 hostname = platform.node()
-db_host = '34.134.156.106'
+db_host = '10.41.224.9'
 db_name = 'ocr_db'
 db_user = 'root'
 db_password = 'csci-password'
@@ -34,7 +34,7 @@ except mysql.connector.Error as error:
 redisHost = os.getenv("REDIS_HOST") or "localhost"
 rabbitMQHost = os.getenv("RABBITMQ_HOST") or "localhost"
 
-print(f"Connecting to rabbitmq({rabbitMQHost}) and redis({redisHost})")
+print(f"Connecting to rabbitmq({rabbitMQHost}) and redis({redisHost})", flush = True)
 
 ##
 ## Set up redis connections
@@ -149,17 +149,18 @@ def storeContentInSql(username, documentId, labelObj, safeSearchObj, filename):
         cursor.close()
 
 def workerCallback(ch, method, properties, body):
-    print(" [Y] Received %r" % "Data to Worker " + hostname + ":" + method.routing_key)
+    print(" [Y] Received %r" % "Data to Worker " + hostname + ":" + method.routing_key, flush = True)
     data = jsonpickle.decode(body)
     print(data) # data will contain document/image id, filename and username
     username = data['username']
     documentId = data['documentId']
     filename = data['filename']
-    bucket_name = 'dcsc-final-project-bucket'
+    bucket_name = 'final-proj-csci-5253'
 
     # get the file from bucket
     fileFromBucket = download_blob_bytes(bucket_name, data['documentId'])
 
+    log_debug("Fetched file from bucket", 'debug')
     print("Fetched file from bucket", flush = True)
     #file_name = os.path.abspath('resources/dog.jpg')
 
@@ -174,6 +175,7 @@ def workerCallback(ch, method, properties, body):
 
     storeContentInSql(data['username'], data['documentId'], LabelObj, SafeSearchObj, filename)
 
+    log_debug("Stored in sql", 'debug')
     print("Stored in sql", flush= True)
 
     # Classify the text obtained from document and store results

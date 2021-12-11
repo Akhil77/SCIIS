@@ -25,7 +25,7 @@ rabbitMQHost = os.getenv("RABBITMQ_HOST") or "localhost"
 print("Connecting to rabbitmq({}) and redis({})".format(rabbitMQHost,redisHost))
 
 # storage bucket name
-bucket_name = 'dcsc-final-project-bucket'
+bucket_name = 'final-proj-csci-5253'
 
 # redis initialization
 redisDocuments = redis.Redis(redisHost, db = 2)
@@ -34,7 +34,7 @@ redisKeys = redis.Redis(redisHost, db = 3)
 
 # mysql connection details
 hostname = platform.node()
-db_host = '34.134.156.106'
+db_host = '10.41.224.9'
 db_name = 'ocr_db'
 db_user = 'root'
 db_password = 'csci-password'
@@ -49,7 +49,7 @@ except mysql.connector.Error as error:
     print("Error Connecting to MySQL DB {}".format(error))
 
 # Google application credentials
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/dcsc-project.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/service-key.json"
 
 # logger details
 info = f"{platform.node()}.info"
@@ -61,6 +61,7 @@ def log_debug(message, key=debug):
     rabbitMQ = pika.BlockingConnection(
     pika.ConnectionParameters(host=rabbitMQHost))
     rabbitMQChannel = rabbitMQ.channel()
+    rabbitMQChannel.exchange_declare(exchange='logs', exchange_type='topic')
     rabbitMQChannel.basic_publish(
         exchange='logs', routing_key=key, body=message)
     rabbitMQChannel.close()
@@ -137,7 +138,7 @@ def upload_file():
             # store file in google cloud bucket.
             upload_blob_bytes(bucket_name, img, img_md5, ext)
             
-            print("Image uploaded to cloud storage")
+            print("Image uploaded to cloud storage", flush = True)
 
             # rabbitmq publish
             connection = pika.BlockingConnection(
@@ -150,14 +151,15 @@ def upload_file():
                         body=jsonpickle.encode(data))
             channel.close()
 
-            print("message added to rabbit mq")
+            print("message added to rabbit mq", flush = True)
+            log_debug("Message added to rabbitmq", 'debug')
             # adding status for publish
             data['status'] = 'success'
 
             print(data)
             
     except Exception as e:
-        print(e)
+        print(e, flush = True)
 
     return render_template('upload.html', text="Image uploaded to Google Cloud, Upload more...")
 
@@ -239,6 +241,7 @@ def search_image():
             if sql_output:
                 output = {'result':sql_output}
             else:
+                log_debug("No images found by REST server", 'debug')
                 default_output = "Could not find any images, try again ..."
     else:
         default_output = "Could not find any images, try again ..."

@@ -11,4 +11,4 @@ kubectl apply -f logs/logs-deployment.yaml
 
 kubectl apply -f worker/worker-deployment.yaml
 
-kubectl apply -f rest/ingress.yaml
+kubectl apply -f ingress-nginx.yaml
