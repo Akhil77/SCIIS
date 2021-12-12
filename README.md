@@ -118,21 +118,30 @@ The following software, accounts and tools are required to get the project up an
 
 ### Installation
 
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+1. `gcloud container clusters create --preemptible mykube` - Create a cluster of nodes on GKE
+2. `sh deploy-all.sh` - Launches all the services and deployments required on GKE.
+3. Setting up the MySQL Database - 
+    ```
+    python worker/sqlsetup.py createDB
+    python worker/sqlsetup.py create
+    ```
+4. Setting up and deploying the ingress on GKE : 
+    ```
+    kubectl create clusterrolebinding cluster-admin-binding 
+    -- clusterrole cluster-admin
+    -- user $(gcloud config get-value account)
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/your_username_/Project-Name.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.4/deploy/static/provider/cloud/deploy.yaml
+    ```
+5. Enabling the load balancer - 
+    ```
+    gcloud container clusters update mykube --update-addons=HttpLoadBalancing=ENABLED
+    ```
+6. Enabling horizontal pod autoscale on CPU usage - 
+    ```
+    kubectl autoscale deployment sciis-rest --cpu-percent=50 --min=1 --max=10
+    kubectl autoscale deployment final-worker --cpu-percent=50 --min=1 --max=10
+    ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

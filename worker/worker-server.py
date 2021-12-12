@@ -18,7 +18,7 @@ from google.cloud import vision
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/service-key.json"
 
 hostname = platform.node()
-db_host = '10.41.224.9'
+db_host = '10.41.224.11'
 db_name = 'ocr_db'
 db_user = 'root'
 db_password = 'csci-password'
@@ -96,7 +96,7 @@ def vision_api(fileBytes):
     image = vision.Image(content=fileBytes)
     client = vision.ImageAnnotatorClient()
 
-    response = client.label_detection(image=image, max_results = 5)
+    response = client.label_detection(image=image, max_results = 15)
     labels = response.label_annotations
 
     resp = []
