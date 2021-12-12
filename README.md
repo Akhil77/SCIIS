@@ -30,7 +30,7 @@
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
       </ul>
-    </li>Workflow of the system
+    </li>
     <li><a href="#workflow-of-the-system">Workflow of the system</a></li>
     <li><a href="#authors">Authors</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
@@ -101,11 +101,18 @@ The project follows a microservice architecture so the application can be broadl
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+The following software, accounts and tools are required to get the project up and running:
+
+* Google cloud account with active credits 
+* gcloud command-line tool
+* Docker
+* Kubernetes enable on Docker or Google Kubernetes engine
+* Python 
+* Redis-CLI
+* Python libraries found in the requirements file of rest-server and worker
+
+
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
